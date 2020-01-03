@@ -13,12 +13,12 @@ ofstream fout("output.txt");
 struct nodLista
 {
     string text;
-    nodLista* next;
+    nodLista *next;
 };
 
 typedef nodLista* Lista;
 
-nodLista* elementLista, * ultimulElementLista;
+nodLista *elementLista,*ultimulElementLista;
 Lista lista = NULL;
 
 struct nodArbore
@@ -29,7 +29,7 @@ struct nodArbore
 
 typedef nodArbore* Arbore;
 
-nodArbore* elementArbore, * elementArbore1, * elementArbore2, * f_x, * g_x;
+nodArbore *elementArbore, *elementArbore1, *elementArbore2, *f_x, *g_x;
 Arbore arbore = NULL, p;
 
 bool FormulaCorecta = true;
@@ -111,6 +111,8 @@ void copyArbore(Arbore &copiedToArbore, Arbore copiedFromArbore)
         copyArbore(copiedToArbore->dreapta, copiedFromArbore->dreapta);
     else
         copiedToArbore->dreapta = NULL;
+
+
 }
 
 void emptyList(Lista &lista)
@@ -160,7 +162,6 @@ bool VerificareFormule(string Formula)
     for(int i = 0; i<Formula.size(); i++)
         if(Formula[i] == '+' || Formula[i] == '-' || Formula[i] == '*' || Formula[i] == '/' || Formula[i] == '^' || Formula.substr(0,3) == "sin" || Formula.substr(0,3) == "cos" || Formula.substr(0,2) == "tg" || Formula.substr(0,3) == "ctg" || Formula.substr(0,6) == "arcsin" || Formula.substr(0,6) == "arccos" || Formula.substr(0,5) == "arctg" || Formula.substr(0,6) == "arcctg")
             return false;
-
     return true;
 }
 
@@ -215,7 +216,6 @@ int CoordonateSemnInmultire(string Formula)
             pozitiaSemn = i;
             AmGasitSemnul = 1;
         }
-
     return pozitiaSemn;
 }
 
@@ -234,6 +234,7 @@ int CoordonateSemnImpartire(string Formula)
             pozitiaSemn = i;
             AmGasitSemnul = 1;
         }
+
     return pozitiaSemn;
 }
 
@@ -252,6 +253,7 @@ int CoordonateSemnPutere(string Formula)
             pozitiaSemn = i;
             AmGasitSemnul = 1;
         }
+
     return pozitiaSemn;
 }
 
@@ -277,17 +279,17 @@ int CoordonateSinus(string Formula)
         return 0;
     else if(Formula.substr(0,3) == "cos")
         return 1;
-    else if(Formula.substr(0,2) == "tg"/** || s.substr(0,3) == "tan"*/)
+    else if(Formula.substr(0,2) == "tg"/* || s.substr(0,3) == "tan"*/)
         return 2;
-    else if(Formula.substr(0,3) == "ctg"/** || s.substr(0,3) == "cot"*/)
+    else if(Formula.substr(0,3) == "ctg"/* || s.substr(0,3) == "cot"*/)
         return 3;
-    else if(Formula.substr(0,6) == "arcsin"/** || s.substr(0,4) == "asin"*/)
+    else if(Formula.substr(0,6) == "arcsin"/* || s.substr(0,4) == "asin"*/)
         return 4;
-    else if(Formula.substr(0,6) == "arccos"/** || s.substr(0,4) == "acos"*/)
+    else if(Formula.substr(0,6) == "arccos"/* || s.substr(0,4) == "acos"*/)
         return 5;
-    else if(Formula.substr(0,5) == "arctg"/** || s.substr(0,4) == "atan"*/)
+    else if(Formula.substr(0,5) == "arctg"/* || s.substr(0,4) == "atan"*/)
         return 6;
-    else if(Formula.substr(0,6) == "arcctg"/** || s.substr(0,4) == "acot"*/)
+    else if(Formula.substr(0,6) == "arcctg"/* || s.substr(0,4) == "acot"*/)
         return 7;
     else if(Formula.substr(0,3) == "log")
         return 8;
@@ -318,7 +320,7 @@ void convertireInLista(string s)
         insertElementLista(lista, s);
         return;
     }
-    ///trebuie modificat atunci cand gasim un caz particular
+    ///trebuie modificat daca gasim cazuri particulare
 
     int pozitiaSemn = CoordonateSemn(s);
 
@@ -328,9 +330,10 @@ void convertireInLista(string s)
         if(pozitiaSemn != -1)
             switch(pozitiaSemn)
             {
+
             /**<?> - trebuie de intrebat profesorul despre care forma vom lua.*/
             /**Pentru ca sunt diferite forme a tangentei si cotangentei       */
-            /**     ========================================                 */
+            /**     ========================================                  */
             /**      |             tg <=> tan               |                 */
             /**      |                                      |                 */
             /**      |             ctg <=> cot              |                 */
@@ -408,7 +411,6 @@ void convertireInLista(string s)
 5. dx(f_x * g_x) = ((dx(f_x) * g_x) * (f_x * dx(g_x)))
 6. dx(f_x / g_x) = (((dx(f_x) * g_x) * (f_x * dx(g_x))) / (g_x ^ 2))
 7. dx(f_x ^ g_x) = (g_x *(f_x ^ (g_x - 1)) * dx(f_x) + f_x * (log(f_x ) * dx( g_x)))
-
 UNDE:
 C = multimea de constante
 x - multimea de variabile in functie de care derivam
@@ -419,6 +421,7 @@ void dx(Arbore &arbore)
 {
     if(arbore->text == "+" || arbore->text == "-")
     {
+
         /**
         Aici arborele are forma
                  (+)
@@ -426,6 +429,7 @@ void dx(Arbore &arbore)
               f(x)  g(x)
         Programul va deriva fiul stang si fiul drept aparte
         */
+
 
         dx(arbore->stanga);
         dx(arbore->dreapta);
@@ -450,19 +454,17 @@ void dx(Arbore &arbore)
                                (*)
                               /   \
                              []   []
-          !!!Atentie!!! Trebuie creata o copie a fiului stang cat si a fiului drept, deoarece avem nevoie de ele nemodificate (in formula f(x) si g(x) raman asa cum sunt)
-
-          <1> - in aceasta parte este exemplificat cum a fost copiat fiul stanga al arborelui
-
-          Dupa ce am stabilit care sunt fii va trebui sa modificam semnul principal al expresiei (din (*) -> (+)),
-          iar pentru cei doi fii semnele corespunzatoare regulii de derivare
-          arbore:           (+)
+        !!!Atentie!!! Trebuie creata o copie a fiului stang cat si a fiului drept, deoarece avem nevoie de ele nemodificate (in formula f(x) si g(x) raman asa cum sunt)
+        <1> - in aceasta parte este exemplificat cum a fost copiat fiul stanga al arborelui
+        Dupa ce am stabilit care sunt fii va trebui sa modificam semnul principal al expresiei (din (*) -> (+)),
+        iar pentru cei doi fii semnele corespunzatoare regulii de derivare
+        arbore:             (+)
                        /            \
                      (*)            (*)
                     /   \          /   \
                  f(x)   g(x)     f(x)  g(x)
-          Dupa ce am modificat nodul radacina, va trebui sa derivam cel mai din stanga fiu[arbore->stanga->stanga] si cel mai din dreapta fiu[arbore->dreapta->dreapta]
-          arbore:            (+)
+        Dupa ce am modificat nodul radacina, va trebui sa derivam cel mai din stanga fiu[arbore->stanga->stanga] si cel mai din dreapta fiu[arbore->dreapta->dreapta]
+        arbore:              (+)
                          /          \
                       (*)            (*)
                      /   \          /   \
@@ -488,9 +490,9 @@ void dx(Arbore &arbore)
     }
     else if(arbore->text == "/")
     {
+
         /** Regula de derivare pentru impartire:
         dx(f_x / g_x) = (((dx(f_x) * g_x) * (f_x * dx(g_x))) / (g_x ^ 2))
-
                              (/)
                         /             \
                       (-)             (^)
@@ -538,21 +540,20 @@ void dx(Arbore &arbore)
         resetArbore(f_x);
         resetArbore(g_x);
 
-        ///Derivarea
+        ///Derivare
         dx(arbore->stanga->stanga->stanga);
         dx(arbore->stanga->dreapta->dreapta);
     }
     else if(arbore->text == "^")
     {
-        /**
+
+         /**
           ( f(x)^g(x) )' = g(x)*( f(x)^( g(x)-1 ) )*( f(x) )' + f(x)*log( f(x) )*( g(x) )'
           Aceasta este formula generala a derivatei operatiei de ridicare la putere:
-
           Arbore:
                   (^)
                  /   \
                f(x)  g(x)
-
           Arbore Modificat:
                                   (+)
                         /                     \
@@ -565,8 +566,11 @@ void dx(Arbore &arbore)
                   f(x)  (-)                     f(x)    []
                        /   \
                      g(x)   1
-
         */
+
+        arbore->text = "+";
+        copyArbore(f_x, arbore->stanga);
+        copyArbore(g_x, arbore->dreapta);
 
         ///Ramura Stanga
         elementArbore1 = new nodArbore;
@@ -626,7 +630,7 @@ void dx(Arbore &arbore)
         resetArbore(f_x);
         resetArbore(g_x);
 
-        ///Derivarea
+        ///Derivare
         dx(arbore->stanga->dreapta->dreapta);
         dx(arbore->dreapta->dreapta->dreapta);
     }
@@ -641,20 +645,21 @@ void dx(Arbore &arbore)
 int main()
 {
     fin >> Formula;
+    fout << "Formula introdusa: ";
+    fout << Formula;
+    fout << "\n";
     convertireInLista(Formula);
     if(FormulaCorecta)
     {
         elementLista = lista;
         insertElementArbore(arbore);
-
         resetList(lista);
-
+        fout << "Arborele binar: ";
         afisareArbore(arbore);
-
-        fout << endl;
+        fout << "\n";
         dx(arbore);
+        fout << "Arborele derivat: ";
         afisareArbore(arbore);
-
         resetArbore(arbore);
     }
     else
