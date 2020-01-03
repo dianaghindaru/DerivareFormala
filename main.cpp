@@ -500,11 +500,28 @@ void dx(Arbore &arbore)
              f(x)' g(x) f(x) g(x)'
         */
 
+        ///elementArbore1 = elementArbore2; -> adresa 1 primeste adresa 2
+
         copyArbore(f_x, arbore->stanga);
         copyArbore(g_x, arbore->dreapta);
 
         ///Ramura Stanga
+        elementArbore1 = new nodArbore;
+        elementArbore1->text = "*";
+        copyArbore(elementArbore1->stanga,f_x);
+        copyArbore(elementArbore1->dreapta,g_x);
 
+        elementArbore2 = new nodArbore;
+        elementArbore2->text = "-";
+        elementArbore2->stanga = elementArbore1;
+
+        elementArbore1 = new nodArbore;
+        elementArbore1->text = "*";
+        elementArbore2->dreapta = elementArbore1;
+        copyArbore(elementArbore1->stanga,f_x);
+        copyArbore(elementArbore1->dreapta,g_x);
+
+        arbore->stanga = elementArbore2;
 
         ///Ramura Dreapta
         elementArbore1 = new nodArbore;
@@ -512,7 +529,7 @@ void dx(Arbore &arbore)
 
         elementArbore2 = new nodArbore;
         elementArbore2->text = "^";
-        elementArbore2->stanga = elementArbore1;
+        elementArbore2->dreapta = elementArbore1;
         elementArbore1 = elementArbore2;
         copyArbore(elementArbore1->stanga,g_x);
 
@@ -522,9 +539,8 @@ void dx(Arbore &arbore)
         resetArbore(g_x);
 
         ///Derivarea
+        dx(arbore->stanga->stanga->stanga);
         dx(arbore->stanga->dreapta->dreapta);
-        dx(arbore->dreapta->dreapta->dreapta);
-
     }
     else if(arbore->text == "^")
     {
@@ -551,9 +567,6 @@ void dx(Arbore &arbore)
                      g(x)   1
 
         */
-        arbore->text = "+";
-        copyArbore(f_x, arbore->stanga);
-        copyArbore(g_x, arbore->dreapta);
 
         ///Ramura Stanga
         elementArbore1 = new nodArbore;
