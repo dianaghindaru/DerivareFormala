@@ -1,14 +1,12 @@
 #include <iostream>
 #include <string>
-#include <fstream>
 using namespace std;
 
 /**                           !!!Manifest!!!                           */
 /**Baieti eu propun ca formula sa fie scrisa canonic, fara ambiguitati,*/
 /**fiindca este destul de complicat de implementat asta.               */
 
-ifstream fin("input.txt");
-ofstream fout("output.txt");
+int alegere = 0;
 
 struct nodLista
 {
@@ -24,6 +22,7 @@ Lista lista = NULL;
 struct nodArbore
 {
     string text;
+    int numar;
     nodArbore *stanga, *dreapta;
 };
 
@@ -51,7 +50,7 @@ void insertElementArbore(Arbore &p)
         insertElementArbore(p->stanga);
         insertElementArbore(p->dreapta);
     }
-    else if(elementArbore->text == "sin" || elementArbore->text == "cos" || elementArbore->text == "tg" || elementArbore->text == "ctg" || elementArbore->text == "arcsin" || elementArbore->text == "arccos" || elementArbore->text == "arctg" || elementArbore->text == "arcctg")
+    else if(elementArbore->text == "sin" || elementArbore->text == "cos" || elementArbore->text == "tg" || elementArbore->text == "ctg" || elementArbore->text == "arcsin" || elementArbore->text == "arccos" || elementArbore->text == "arctg" || elementArbore->text == "arcctg" || elementArbore->text == "log")
     {
         insertElementArbore(p->stanga);
         p->dreapta = NULL;
@@ -64,20 +63,22 @@ void afisareArbore(Arbore arbore)
 {
     if(arbore->text == "+" || arbore->text == "-" || arbore->text == "*" || arbore->text == "/" || arbore->text == "^")
     {
-        fout << "(";
-        afisareArbore(arbore->stanga);
-        fout << arbore->text;
+        cout << "(";
+        if(!(arbore->text == "-" && arbore->stanga->text == "0"))
+            afisareArbore(arbore->stanga);
+
+        cout << arbore->text;
         afisareArbore(arbore->dreapta);
-        fout << ")";
+        cout << ")";
     }
     else if(arbore->text == "sin" || arbore->text == "cos" || arbore->text == "tg" || arbore->text == "ctg" || arbore->text == "arcsin" || arbore->text == "arccos" || arbore->text == "arctg" || arbore->text == "arcctg" || arbore->text == "log")
     {
-        fout << arbore->text << "(";
+        cout << arbore->text << "(";
         afisareArbore(arbore->stanga);
-        fout << ")";
+        cout << ")";
     }
     else
-        fout << arbore->text;
+        cout << arbore->text;
 }
 
 void deleteArbore(Arbore &arbore)
@@ -140,7 +141,7 @@ void insertElementLista(Lista &lista, string text)
 void showList(Lista lista)
 {
     for(nodLista *i = lista; i != NULL; i = i->next)
-        fout << i->text << " ";
+        cout << i->text << " ";
 }
 
 void deleteList(Lista &lista)
@@ -159,7 +160,8 @@ void resetList(Lista &lista)
 bool VerificareFormule(string Formula)
 {
     ///Verifica daca este <parametru> <semn> <parametru> si daca da returneaza false
-    for(int i = 0; i<Formula.size(); i++)
+    int n = Formula.size();
+    for(int i = 0; i < n; i++)
         if(Formula[i] == '+' || Formula[i] == '-' || Formula[i] == '*' || Formula[i] == '/' || Formula[i] == '^' || Formula.substr(0,3) == "sin" || Formula.substr(0,3) == "cos" || Formula.substr(0,2) == "tg" || Formula.substr(0,3) == "ctg" || Formula.substr(0,6) == "arcsin" || Formula.substr(0,6) == "arccos" || Formula.substr(0,5) == "arctg" || Formula.substr(0,6) == "arcctg")
             return false;
     return true;
@@ -171,7 +173,8 @@ bool VerificareParanteza(string Formula)
     if(Formula[0] == '(' && Formula[Formula.size() - 1] == ')')
     {
         int j = 0;
-        for(int i = 0; i < Formula.size(); i++)
+        int n = Formula.size();
+        for(int i = 0; i < n; i++)
             if(Formula[i] == '(')
                 j++;
             else if(Formula[i] == ')')
@@ -436,8 +439,7 @@ void dx(Arbore &arbore)
     }
     else if(arbore->text == "*")
     {
-        if(arbore->text == "*")
-            arbore->text = "+";
+        arbore->text = "+";
 
         /**
         Pentru cazul cu inmultire:
@@ -532,8 +534,8 @@ void dx(Arbore &arbore)
         elementArbore2 = new nodArbore;
         elementArbore2->text = "^";
         elementArbore2->dreapta = elementArbore1;
-        elementArbore1 = elementArbore2;
         copyArbore(elementArbore1->stanga,g_x);
+        elementArbore1 = elementArbore2;
 
         arbore->dreapta = elementArbore1;
 
@@ -575,6 +577,7 @@ void dx(Arbore &arbore)
         ///Ramura Stanga
         elementArbore1 = new nodArbore;
         elementArbore1->text = "1";
+        elementArbore1->dreapta = elementArbore1->stanga = NULL;
 
         elementArbore2 = new nodArbore;
         elementArbore2->text = "-";
@@ -634,6 +637,293 @@ void dx(Arbore &arbore)
         dx(arbore->stanga->dreapta->dreapta);
         dx(arbore->dreapta->dreapta->dreapta);
     }
+    else if(arbore->text == "sin")
+    {
+
+        /// Regula de derivare pentru sin:
+        ///              (*)
+        ///           /       \
+        ///         cos      f_x'
+        ///        /   \
+        ///      f_x  NULL
+
+        arbore->text = "*";
+
+        copyArbore(f_x, arbore->stanga);
+
+        ///  Ramura stanga
+        elementArbore1 = new nodArbore;
+        elementArbore1->text = "cos";
+        elementArbore1->dreapta = NULL;
+        copyArbore(elementArbore1->stanga,f_x);
+
+        arbore->stanga = elementArbore1;
+
+        /// Ramura dreapta
+        elementArbore2 = new nodArbore;
+        copyArbore(elementArbore2,f_x);
+        elementArbore2->stanga = elementArbore2->dreapta = NULL;
+
+        arbore->dreapta = elementArbore2;
+
+        resetArbore(f_x);
+
+        ///Derivare
+        dx(arbore->dreapta);
+    }
+
+    else if(arbore->text == "cos")
+    {
+
+        /// Regula de derivare pentru sin:
+        ///              (-)
+        ///           /       \
+        ///          0        (*)
+        ///                 /     \
+        ///               sin    f_x'
+        ///              /   \
+        ///            f_x  NULL
+
+        arbore->text = "-";
+
+        copyArbore(f_x, arbore->stanga);
+
+        ///  Ramura stanga
+        elementArbore1 = new nodArbore;
+        elementArbore1->text = "0";
+
+        arbore->stanga = elementArbore1;
+
+        /// Ramura dreapta
+        elementArbore1 = new nodArbore;
+        elementArbore1->text = "sin";
+        elementArbore1->dreapta = NULL;
+        copyArbore(elementArbore1->stanga,f_x);
+
+        elementArbore2 = new nodArbore;
+        elementArbore2->text = "*";
+        elementArbore2->stanga = elementArbore1;
+
+        elementArbore1 = new nodArbore;
+        copyArbore(elementArbore1, f_x);
+        elementArbore2->dreapta = elementArbore1;
+
+        arbore->dreapta = elementArbore2;
+
+        resetArbore(f_x);
+
+        ///Derivare
+        dx(arbore->dreapta->dreapta);
+    }
+    else if(arbore->text == "tg")
+    {
+
+        /// Regula de derivare pentru tg:
+        ///              (/)
+        ///           /       \
+        ///         f_x'      (^)
+        ///                /      \
+        ///              cos       2
+        ///            /     \
+        ///           f_x  NULL
+
+        arbore->text = "/";
+
+        /// Ramura stanga
+        copyArbore(f_x, arbore->stanga);
+
+        /// Ramura dreapta
+        elementArbore1 = new nodArbore;
+        elementArbore1->text = "cos";
+        elementArbore1->dreapta = NULL;
+        copyArbore(elementArbore1->stanga, f_x);
+
+        elementArbore2 = new nodArbore;
+        elementArbore2->text = "^";
+        elementArbore2->stanga = elementArbore1;
+
+        elementArbore1 = new nodArbore;
+        elementArbore1->text = "2";
+        elementArbore1->stanga = elementArbore1->dreapta = NULL;
+        elementArbore2->dreapta = elementArbore1;
+
+        arbore->dreapta=elementArbore2;
+
+        resetArbore(f_x);
+
+        ///Derivare
+        dx(arbore->stanga);
+    }
+    else if(arbore->text == "ctg")
+    {
+
+        /// Regula de derivare pentru ctg:
+        ///            (-)
+        ///      /             \
+        ///     0              (/)
+        ///                 /       \
+        ///               f_x'      (^)
+        ///                       /     \
+        ///                     sin      2
+        ///                    /   \
+        ///                  f_x  NULL
+
+        arbore->text = "-";
+
+        copyArbore(f_x, arbore->stanga);
+
+        ///  Ramura stanga
+        elementArbore1 = new nodArbore;
+        elementArbore1->text = "0";
+        elementArbore1->stanga = elementArbore1->dreapta = NULL;
+
+        arbore->stanga = elementArbore1;
+
+        /// Ramura dreapta
+        elementArbore1 = new nodArbore;
+        elementArbore1->text = "sin";
+        elementArbore1->dreapta = NULL;
+        copyArbore(elementArbore1->stanga, f_x);
+
+        elementArbore2 = new nodArbore;
+        elementArbore2->text = "^";
+        elementArbore2->stanga = elementArbore1;
+
+        elementArbore1 = new nodArbore;
+        elementArbore1->text = "2";
+        elementArbore1->dreapta = elementArbore1->stanga = NULL;
+        elementArbore2->dreapta = elementArbore1;
+
+        elementArbore1 = new nodArbore;
+        elementArbore1->text = "/";
+        elementArbore1->dreapta = elementArbore2;
+        copyArbore(elementArbore1->stanga, f_x);
+
+        arbore->dreapta = elementArbore1;
+
+        resetArbore(f_x);
+
+        ///Derivare
+        dx(arbore->dreapta->stanga);
+    }
+    else if(arbore->text == "arctg")
+    {
+
+        ///       (/)
+        ///     /     \
+        ///   f_x'    (+)
+        ///          /   \
+        ///        (^)    1
+        ///       /   \
+        ///     f(x)   2
+
+        arbore->text = "/";
+
+        /// Ramura stanga
+        copyArbore(f_x, arbore->stanga);
+
+        /// Ramura dreapta
+        elementArbore1 = new nodArbore;
+        elementArbore1->text = "2";
+        elementArbore1->stanga = elementArbore1->dreapta = NULL;
+
+        elementArbore2 = new nodArbore;
+        elementArbore2->text = "^";
+        elementArbore2->dreapta = elementArbore1;
+        copyArbore(elementArbore2->stanga, f_x);
+
+        elementArbore1 = new nodArbore;
+        elementArbore1->text = "+";
+        elementArbore1->stanga = elementArbore2;
+
+        elementArbore2 = new nodArbore;
+        elementArbore2->text = "1";
+        elementArbore2->stanga = elementArbore1->dreapta = NULL;
+        elementArbore1->dreapta = elementArbore2;
+
+        arbore->dreapta = elementArbore1;
+
+        resetArbore(f_x);
+
+        /// Derivarea
+        dx(arbore->stanga);
+    }
+
+    /** trebuie reparata
+    else if(arbore->text == "arcctg")
+    {
+
+        ///        (-)
+        ///     /       \
+        ///    0        (/)
+        ///           /     \
+        ///         f_x'    (+)
+        ///                /   \
+        ///              (^)    1
+        ///             /   \
+        ///           f(x)   2
+
+        arbore->text = "-";
+
+        /// Ramura stanga
+        elementArbore1 = new nodArbore;
+        elementArbore1->text = "0";
+        elementArbore1->stanga = elementArbore1->dreapta = NULL;
+
+        arbore->stanga = elementArbore1;
+
+        /// Ramura dreapta
+        elementArbore1 = new nodArbore;
+        elementArbore1->text = "2";
+        elementArbore1->stanga = elementArbore1->dreapta = NULL;
+
+        elementArbore2 = new nodArbore;
+        elementArbore2->text = "^";
+        elementArbore2->dreapta = elementArbore1;
+        copyArbore(elementArbore2->stanga,f_x);
+
+        elementArbore1 = new nodArbore;
+        elementArbore1->text = "+";
+        elementArbore1->stanga = elementArbore2;
+
+        elementArbore2 = new nodArbore;
+        elementArbore2->text = "1";
+        elementArbore2->stanga = elementArbore2->dreapta = NULL;
+        elementArbore1->dreapta = elementArbore2;
+
+        elementArbore2 = new nodArbore;
+        elementArbore2->text = "/";
+        elementArbore2->dreapta = elementArbore1;
+        copyArbore(elementArbore2->stanga, f_x);
+
+        arbore->dreapta = elementArbore2;
+
+        resetArbore(f_x);
+
+        /// Derivarea
+        dx(arbore->dreapta->stanga);
+    }
+    */
+
+    /** trebuie reparata
+    else if(arbore->text == "log")
+    {
+
+        ///       (/)
+        ///     /     \
+        ///   f_x'   f_x
+
+        arbore->text = "/";
+        copyArbore(f_x,arbore->stanga);
+        copyArbore(arbore->dreapta,f_x);
+
+        resetArbore(f_x);
+
+        /// Derivarea
+        dx(arbore->stanga);
+    }
+    */
+
     else if(arbore->text == "x")
     {
         arbore->text = "1";
@@ -644,25 +934,55 @@ void dx(Arbore &arbore)
 
 int main()
 {
-    fin >> Formula;
-    fout << "Formula introdusa: ";
-    fout << Formula;
-    fout << "\n";
-    convertireInLista(Formula);
-    if(FormulaCorecta)
+    while(1)
     {
-        elementLista = lista;
-        insertElementArbore(arbore);
-        resetList(lista);
-        fout << "Arborele binar: ";
-        afisareArbore(arbore);
-        fout << "\n";
-        dx(arbore);
-        fout << "Arborele derivat: ";
-        afisareArbore(arbore);
-        resetArbore(arbore);
+        cout << "Bine ai venit!" << "\n";
+        cout << "Apasa '1' pentru a intra in program." << "\n";
+        cout << "Apasa '2' pentru a intra in sectiunea de 'Credite.'" << "\n";
+        cout << "Apasa '3' pentru a iesi din program." << "\n";
+        cout << "Alegere: ";
+
+        alegere = 0;
+        while(alegere <= 0 || alegere > 3) cin >> alegere;
+
+        switch (alegere) {
+            case 1: {
+                string Formula;
+                cout << "Scrie formula pe care doresti sa o derivezi: ";
+                cin >> Formula;
+                cout << "\n";
+                cout << "Formula initiala: " << Formula << "\n";
+                cout << "\n";
+                convertireInLista(Formula);
+                if (FormulaCorecta) {
+                    elementLista = lista;
+                    insertElementArbore(arbore);
+                    resetList(lista);
+                    cout << "Arborele binar: ";
+                    afisareArbore(arbore);
+                    cout << "\n";
+                    cout << "\n";
+                    dx(arbore);
+                    cout << "Arborele derivat: ";
+                    afisareArbore(arbore);
+                    cout << "\n";
+                    cout << "\n";
+                    resetArbore(arbore);
+                } else { cout << "Formula este Gresita"; }
+            }
+                 break;
+            case 2:
+                cout << "Acest proiect a fost realizat de: " << "\n";
+                cout << "Bordea Ion" << "\n";
+                cout << "Diana Ghindaru" << "\n";
+                cout << "Ciobotariu Andrei" << "\n";
+                cout << "Apasa '1' pentru a iesi din sectiunea de 'Credits'." << "\n";
+                alegere = 0;
+                while(alegere != 1)cin >> alegere;
+                break;
+            case 3:
+                return 0;
+        }
     }
-    else
-        fout << "Formula este Gresita";
     return 0;
 }
